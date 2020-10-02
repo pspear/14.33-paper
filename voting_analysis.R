@@ -4,9 +4,8 @@ library(readr)
 library("xlsx")
 library(ggplot2)
 library(stargazer)
+library(pastecs) 
 
-
-setwd('/Users/phoebespear/Desktop/MIT_20-21/14.33/Short_Paper')
 
 #load raw voting data
 raw_voting <- read.csv('Voting.csv')
@@ -33,18 +32,18 @@ ggplot(data=voting, aes(x=educCollegeUp, y=medianIncome, group=1)) +
   geom_point(color='blue') + 
   geom_smooth(method="lm", color = 'black') 
 
-#new health + county level data 
-health_data_dir = "/Users/phoebespear/Desktop/MIT_20-21/14.33/Short_Paper/state_health_data"
+#Load in the first file of the health county data (commute variable) 
+health_data_dir = paste0(getwd(),"/commute_data") 
 health_files = list.files(path=health_data_dir, pattern="*.xls", full.names=TRUE)
 health_df = read.xlsx(health_files[1], sheetName='Ranked Measure Data')
 
-# Loop through the remaining files and merge them to the existing data frame
+# Loop through the files and merge them to the existing data frame
 for (file in health_files[-1]) {
   newFile = read.xlsx(file, sheetName ='Ranked Measure Data')
   health_df = rbind(health_df, newFile, all=TRUE)
 }
 
-#clean health data so it can be merged with voting data 
+#Clean health data so it can be merged with voting data 
 names <- lapply(health_df[1,], as.character)
 names <- unlist(names)
 names <- as.character(names)
@@ -98,8 +97,5 @@ ggplot(data=voting_extreme_commute, aes(x=prcp_diff, y=turnout_final, color=comm
   xlab("Percipation Difference from Average (mm)") + 
   ylab("Voter Turnout (in person) ") + 
   ggtitle("Voter Turnout in County's where people have Longer Commutes are More Effected by Rain")
-
-write.csv(voting_and_health, "voting_and_health.csv")
-write.csv(voting, "voting_edited.csv")
 
 
